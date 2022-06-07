@@ -1,42 +1,41 @@
 package com.example.demo.repositories;
 
+import com.example.demo.exceptions.PostIdAlreadyUsedException;
 import com.example.demo.exceptions.PostNotFoundException;
-import com.example.demo.exceptions.UserIdNotFoundException;
 import com.example.demo.models.Post;
-import com.example.demo.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
-//TODO make another repository for user endpoint
 @Repository
 public class PostRepository {
     @Autowired
     private RestTemplate restTemplate;
+
     private List<Post> postsList = new LinkedList<>();
-    private List<User> userList = new LinkedList<>();
+
     private final String postUrl = "https://jsonplaceholder.typicode.com/posts";
-    private final String userUrl = "https://jsonplaceholder.typicode.com/users";
 
-
+    /**
+     * Loads all posts from external API and stores them in linkedList
+     * @return
+     */
     public List<Post> loadAllPosts() {
         Post[] posts = restTemplate.getForObject(postUrl, Post[].class);
 
-//        this.postsList = Arrays.stream(posts).toList();
         List<Post> allPost = new LinkedList<>(Arrays.asList(posts));
         this.postsList = allPost;
         return postsList;
     }
 
-    public List<User> loadAllUsers() {
-        User[] users = restTemplate.getForObject(userUrl, User[].class);
-
-        this.userList = Arrays.stream(users).toList();
-        return userList;
-    }
-
+    /**
+     * Returns post with given id
+     * @param id
+     * @return
+     * @throws PostNotFoundException
+     */
     public Post getPostById(int id) throws PostNotFoundException {
         List<Post> posts = loadAllPosts();
         boolean isPresent = false;
@@ -53,7 +52,12 @@ public class PostRepository {
         return null;
     }
 
-
+    /**
+     * Returns list of posts associated to user with given id
+     * @param userId
+     * @return
+     * @throws PostNotFoundException
+     */
     public List<Post> getPostByUserId(int userId) throws PostNotFoundException {
         List<Post> posts = loadAllPosts();
         ArrayList<Post> postsByUserId = new ArrayList<>();
@@ -69,24 +73,33 @@ public class PostRepository {
             return postsByUserId;
     }
 
+    /**
+     * Adds a new post
+     * @param newPost
+     */
     public void addNewPost(Post newPost) {
         this.postsList.add(newPost);
     }
 
+    /**
+     * Removes a selected post
+     * @param post
+     */
     public void removePost(Post post) {
         this.postsList.remove(post);
     }
 
-    public void chceckForUserId(int userId) throws UserIdNotFoundException {
-        List<User> users = loadAllUsers();
-        boolean userIsPresent = false;
+    /**
+     * Checks if id of a new post is unique
+     * @param newPost
+     * @throws PostIdAlreadyUsedException
+     */
+    public void checkForExistingId(Post newPost) throws PostIdAlreadyUsedException {
+        this.postsList = loadAllPosts();
 
-        for (User user : users) {
-            if (user.getId() == userId)
-                userIsPresent = true;
+        for (Post post : postsList) {
+            if (post.getId() == newPost.getId())
+                throw new PostIdAlreadyUsedException("Post with given id already exists");
         }
-
-        if (!userIsPresent)
-            throw new UserIdNotFoundException("User for given post does not exist");
     }
 }

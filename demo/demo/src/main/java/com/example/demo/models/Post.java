@@ -1,15 +1,20 @@
 package com.example.demo.models;
 
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.lang.NonNull;
 
 public class Post {
     @ApiModelProperty(notes = "id of user associated to this post")
+    @NonNull
     private int userId;
     @ApiModelProperty(notes = "id of the post")
+    @NonNull
     private int id;
     @ApiModelProperty(notes = "title of the post")
+    @NonNull
     private String title;
     @ApiModelProperty(notes = "body of the post")
+    @NonNull
     private String body;
 
     public Post() {
