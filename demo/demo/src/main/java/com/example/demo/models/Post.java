@@ -1,9 +1,15 @@
 package com.example.demo.models;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class Post {
+    @ApiModelProperty(notes = "id of user associated to this post")
     private int userId;
+    @ApiModelProperty(notes = "id of the post")
     private int id;
+    @ApiModelProperty(notes = "title of the post")
     private String title;
+    @ApiModelProperty(notes = "body of the post")
     private String body;
 
     public Post() {
